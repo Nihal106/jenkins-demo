@@ -1,61 +1,50 @@
-// Jenkinsfile - Simple (uses mvn available on the agent)
+// Jenkinsfile (Declarative) — use checkout scm to avoid branch mismatches
 pipeline {
-  agent any
-
+  // Prevent concurrent builds and avoid resume after restart (optional policies)
   options {
-    // avoid concurrent runs for the same branch
     disableConcurrentBuilds()
-    // keep logs small (optional)
-    buildDiscarder(logRotator(daysToKeepStr: '7', numToKeepStr: '20'))
+    skipDefaultCheckout()     // we'll explicitly use checkout scm in the Checkout stage
+    // you can add buildDiscarder(logRotator(...)) here if desired
   }
+
+  agent any
 
   stages {
     stage('Checkout') {
       steps {
+        // Use the SCM already configured for the job (Pipeline from SCM)
         checkout scm
+        // If you prefer explicit git with branch:
+        // git branch: 'main', url: 'https://github.com/Nihal106/jenkins-demo.git'
       }
     }
 
     stage('Build') {
       steps {
-        echo 'Running mvn clean package'
+        echo 'Building...'
+        // Use Maven if your project uses Maven. Adjust if using gradle/npm etc.
         sh 'mvn -B clean package'
       }
-      // fail the build fast if mvn command fails
     }
 
     stage('Test') {
       steps {
-        echo 'Running mvn test'
+        echo 'Running tests...'
         sh 'mvn -B test'
-      }
-      post {
-        // publish junit reports if tests produce them
-        always {
-          junit '**/target/surefire-reports/*.xml'
-        }
-      }
-    }
-
-    stage('Archive') {
-      steps {
-        echo 'Archiving artifacts'
-        // Archive any jar/war produced by Maven
-        archiveArtifacts artifacts: 'target/*.jar, target/*.war', fingerprint: true, allowEmptyArchive: true
       }
     }
   }
 
   post {
     success {
-      echo "Build Successful!"
+      echo 'Build Successful!'
     }
     failure {
-      echo "Build Failed!"
+      echo 'Build Failed!'
     }
     always {
-      // show workspace contents for debugging
-      sh 'echo "Workspace:" && ls -la || true'
+      // useful cleanup/diagnostics: list workspace
+      sh 'echo "Workspace contents:"; ls -la || true'
     }
   }
 }
