@@ -13,7 +13,7 @@ pipeline {
     stage('Checkout') {
       steps {
         // Use the SCM already configured for the job (Pipeline from SCM)
-        checkout scm
+        // checkout scm
         // checkout scm
         // If you prefer explicit git with branch:
         // git branch: 'main', url: 'https://github.com/Nihal106/jenkins-demo.git'
