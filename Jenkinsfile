@@ -1,10 +1,7 @@
-// Jenkinsfile (Declarative) — use checkout scm to avoid branch mismatches
 pipeline {
-  // Prevent concurrent builds and avoid resume after restart (optional policies)
   options {
     disableConcurrentBuilds()
-    skipDefaultCheckout()     // we'll explicitly use checkout scm in the Checkout stage
-    // you can add buildDiscarder(logRotator(...)) here if desired
+    skipDefaultCheckout()
   }
 
   agent any
@@ -12,9 +9,6 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        // Use the SCM already configured for the job (Pipeline from SCM)
-        // checkout scm
-        // If you prefer explicit git with branch:
         git branch: 'main', url: 'https://github.com/Nihal106/jenkins-demo.git'
       }
     }
@@ -22,15 +16,14 @@ pipeline {
     stage('Build') {
       steps {
         echo 'Building...'
-        // Use Maven if your project uses Maven. Adjust if using gradle/npm etc.
-        sh 'mvn -B clean package'
+        bat 'mvn -B clean package'
       }
     }
 
     stage('Test') {
       steps {
         echo 'Running tests...'
-        sh 'mvn -B test'
+        bat 'mvn -B test'
       }
     }
   }
@@ -43,8 +36,8 @@ pipeline {
       echo 'Build Failed!'
     }
     always {
-      // useful cleanup/diagnostics: list workspace
-      sh 'echo "Workspace contents:"; ls -la || true'
+      echo 'Workspace contents:'
+      bat 'dir'
     }
   }
 }
