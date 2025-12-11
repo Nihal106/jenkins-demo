@@ -1,28 +1,25 @@
 pipeline {
-    agent any
-    stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/Nihal106/jenkins-demo.git'
-            }
-        }
-        stage('Build') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
+  agent any
+  stages {
+    stage('Checkout') {
+      steps {
+        // use the same SCM Jenkins already configured for this pipeline
+        checkout scm
+      }
     }
-    post {
-        success {
-            echo 'Build Successful!'
-        }
-        failure {
-            echo 'Build Failed!'
-        }
+    stage('Build') {
+      steps {
+        sh 'mvn clean package'
+      }
     }
+    stage('Test') {
+      steps {
+        sh 'mvn test'
+      }
+    }
+  }
+  post {
+    success { echo 'Build Successful!' }
+    failure { echo 'Build Failed!' }
+  }
 }
