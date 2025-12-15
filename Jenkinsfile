@@ -7,8 +7,7 @@ pipeline {
     // you can add buildDiscarder(logRotator(...)) here if desired
   }
 
-  agent any
-
+  agent { label 'aws-node' }
   stages {
     stage('Checkout') {
       steps {
