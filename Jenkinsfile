@@ -2,7 +2,7 @@ pipeline {
   agent { label 'jenkins-aws' }
 
   options {
-    skipDefaultCheckout(true)   // 🔥 THIS IS THE FIX
+    skipDefaultCheckout(true)   // checkout handled manually
   }
 
   stages {
@@ -21,17 +21,32 @@ pipeline {
       steps {
         sh '''
           cd app
-          mvn -B clean package
+          mvn -B clean package -DskipTests
         '''
       }
     }
 
-    stage('Test') {
-      steps {
-        sh '''
-          cd app
-          mvn -B test
-        '''
+    stage('Parallel Checks') {
+      parallel {
+
+        stage('Unit Tests') {
+          steps {
+            sh '''
+              cd app
+              mvn -B test
+            '''
+          }
+        }
+
+        stage('Static Checks') {
+          steps {
+            sh '''
+              cd app
+              echo "Running static checks..."
+              mvn -B validate
+            '''
+          }
+        }
       }
     }
   }
