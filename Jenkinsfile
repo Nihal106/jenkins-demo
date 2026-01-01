@@ -4,22 +4,29 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        sh 'which git'
-        sh 'git --version'
-        git branch: 'main',
-            url: 'https://github.com/Nihal106/jenkins-demo.git'
+        sh '''
+          rm -rf jenkins-demo || true
+          git clone https://github.com/Nihal106/jenkins-demo.git
+          cd jenkins-demo
+        '''
       }
     }
 
     stage('Build') {
       steps {
-        sh 'mvn -B clean package'
+        sh '''
+          cd jenkins-demo
+          mvn -B clean package
+        '''
       }
     }
 
     stage('Test') {
       steps {
-        sh 'mvn -B test'
+        sh '''
+          cd jenkins-demo
+          mvn -B test
+        '''
       }
     }
   }
