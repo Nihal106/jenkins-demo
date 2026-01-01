@@ -1,19 +1,18 @@
 pipeline {
   agent { label 'jenkins-aws' }
 
+  options {
+    skipDefaultCheckout(true)   // 🔥 THIS IS THE FIX
+  }
+
   stages {
 
     stage('Checkout') {
       steps {
         sh '''
-          echo "Cleaning old workspace..."
-          rm -rf app || true
-
           echo "Cloning source code on agent..."
+          rm -rf app || true
           git clone https://github.com/Nihal106/jenkins-demo.git app
-
-          cd app
-          git branch
         '''
       }
     }
