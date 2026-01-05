@@ -2,7 +2,7 @@ pipeline {
   agent { label 'jenkins-aws' }
 
   options {
-    skipDefaultCheckout(true)   // checkout handled manually
+    skipDefaultCheckout(true)   // manual checkout
     timestamps()
     disableConcurrentBuilds()
   }
@@ -13,8 +13,9 @@ pipeline {
       steps {
         sh '''
           echo "📥 Cloning source code on agent..."
-          rm -rf app || true
-          git clone https://github.com/Nihal106/jenkins-demo.git app
+          rm -rf jenkins-demo || true
+          git clone https://github.com/Nihal106/jenkins-demo.git
+          cd jenkins-demo
         '''
       }
     }
@@ -23,7 +24,7 @@ pipeline {
       steps {
         sh '''
           echo "🔨 Building application (skip tests)"
-          cd app
+          cd jenkins-demo
           mvn -B clean package -DskipTests
         '''
       }
@@ -36,7 +37,7 @@ pipeline {
           steps {
             sh '''
               echo "🧪 Running unit tests"
-              cd app
+              cd jenkins-demo
               mvn -B test
             '''
           }
@@ -46,7 +47,7 @@ pipeline {
           steps {
             sh '''
               echo "🔍 Running static validation checks"
-              cd app
+              cd jenkins-demo
               mvn -B validate
             '''
           }
@@ -54,14 +55,12 @@ pipeline {
       }
     }
 
-    
-    // 🔐 ENABLE THIS WHEN SONARQUBE IS READY
     stage('SonarQube Scan') {
       steps {
         withSonarQubeEnv('sonarqube') {
           sh '''
-            echo "🔍 Running SonarQube scan"
-            cd app
+            echo "🔐 Running SonarQube scan"
+            cd jenkins-demo
             mvn sonar:sonar
           '''
         }
@@ -70,25 +69,22 @@ pipeline {
 
     stage('Quality Gate') {
       steps {
+        echo "🚦 Waiting for Quality Gate result"
         timeout(time: 1, unit: 'MINUTES') {
           waitForQualityGate abortPipeline: true
         }
       }
     }
-    
 
-    
-    // 🐳 ENABLE WHEN DOCKER IS REQUIRED
     stage('Docker Build') {
       steps {
         sh '''
           echo "🐳 Building Docker image"
-          cd app
+          cd jenkins-demo
           docker build -t myapp:1.0 .
         '''
       }
     }
-    
   }
 
   post {
