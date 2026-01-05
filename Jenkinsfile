@@ -59,13 +59,18 @@ stage('SonarQube Scan') {
   steps {
     withSonarQubeEnv('sonarqube') {
       sh '''
-        echo "🔐 Running SonarQube scan"
+        echo "🔐 Running SonarQube scan (CLI)"
         cd jenkins-demo
-        mvn clean verify sonar:sonar
+        sonar-scanner \
+          -Dsonar.projectKey=jenkins-demo \
+          -Dsonar.projectName=jenkins-demo \
+          -Dsonar.sources=src \
+          -Dsonar.java.binaries=target
       '''
     }
   }
 }
+
 
     stage('Quality Gate') {
       steps {
