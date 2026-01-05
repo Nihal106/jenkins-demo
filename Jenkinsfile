@@ -55,17 +55,17 @@ pipeline {
       }
     }
 
-    stage('SonarQube Scan') {
-      steps {
-        withSonarQubeEnv('sonarqube') {
-          sh '''
-            echo "🔐 Running SonarQube scan"
-            cd jenkins-demo
-            mvn sonar:sonar
-          '''
-        }
-      }
+stage('SonarQube Scan') {
+  steps {
+    withSonarQubeEnv('sonarqube') {
+      sh '''
+        echo "🔐 Running SonarQube scan"
+        cd jenkins-demo
+        mvn clean verify sonar:sonar
+      '''
     }
+  }
+}
 
     stage('Quality Gate') {
       steps {
