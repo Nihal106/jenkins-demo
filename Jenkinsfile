@@ -53,10 +53,28 @@ pipeline {
 
   post {
     success {
-      echo '✅ Build Successful'
+       emailext(
+        subject: "✅ SUCCESS: ${JOB_NAME} #${BUILD_NUMBER}",
+        body: """
+Build Status : SUCCESS
+Job Name     : ${JOB_NAME}
+Build Number : ${BUILD_NUMBER}
+Build URL    : ${BUILD_URL}
+""",
+        to: "nihalpk10006@gmail.com"
+      )
     }
     failure {
-      echo '❌ Build Failed'
+             emailext(
+        subject: "❌ FAILURE: ${JOB_NAME} #${BUILD_NUMBER}",
+        body: """
+Build Status : FAILED
+Job Name     : ${JOB_NAME}
+Build Number : ${BUILD_NUMBER}
+Check Logs   : ${BUILD_URL}
+""",
+        to: "nihalpk10006@gmail.com"
+      )
     }
   }
 }
