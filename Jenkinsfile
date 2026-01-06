@@ -57,19 +57,26 @@ pipeline {
 
 stage('SonarQube Scan') {
   steps {
-    withSonarQubeEnv('sonarqube') {
-      sh '''
-        echo "🔐 Running SonarQube scan (CLI)"
-        cd jenkins-demo
-        sonar-scanner \
-          -Dsonar.projectKey=jenkins-demo \
-          -Dsonar.projectName=jenkins-demo \
-          -Dsonar.sources=src \
-          -Dsonar.java.binaries=target
-      '''
+    script {
+      // Load Sonar Scanner tool into PATH
+      def scannerHome = tool 'sonar-scanner'
+
+      withSonarQubeEnv('sonarqube') {
+        sh """
+          echo "🔐 Running SonarQube scan (CLI)"
+          export PATH=${scannerHome}/bin:\$PATH
+          cd jenkins-demo
+          sonar-scanner \
+            -Dsonar.projectKey=jenkins-demo \
+            -Dsonar.projectName=jenkins-demo \
+            -Dsonar.sources=src \
+            -Dsonar.java.binaries=target
+        """
+      }
     }
   }
 }
+
 
 
     stage('Quality Gate') {
